@@ -1,0 +1,1 @@
+class Face(val front: Double, val back: Double)

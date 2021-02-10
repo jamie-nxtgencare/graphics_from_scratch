@@ -1,0 +1,16 @@
+{
+  "name": "graphics",
+  "version": "1.0.0",
+  "description": "Graphics From Scratch",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "jamie",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^11.2.3"
+  }
+}
