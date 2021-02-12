@@ -2,7 +2,10 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLElement
 import kotlin.KotlinVersion.Companion.CURRENT
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
+@ExperimentalTime
 fun main() {
     init()
     println("Initialized")
@@ -28,17 +31,25 @@ fun main() {
 
     println("Scene populated")
 
-    for (x in -scene.canvas.getWidth() / 2 .. scene.canvas.getWidth() / 2) {
-        for (y in -scene.canvas.getHeight() / 2 .. scene.canvas.getHeight() / 2) {
-            val direction = scene.toViewport(Vector(x.toDouble(), y.toDouble()))
-            val color = scene.traceRay(scene.cameraPosition, direction, 1, Int.MAX_VALUE);
-            scene.canvas.putPixel(x.toDouble(), y.toDouble(), color);
+    val measureTime = measureTime {
+        for (x in -scene.canvas.getWidth() / 2..scene.canvas.getWidth() / 2) {
+            for (y in -scene.canvas.getHeight() / 2..scene.canvas.getHeight() / 2) {
+                val direction = scene.toViewport(Vector(x.toDouble(), y.toDouble()))
+                val color = scene.traceRay(scene.cameraPosition, direction, 1.0, Int.MAX_VALUE);
+                scene.canvas.putPixel(x.toDouble(), y.toDouble(), color);
+            }
         }
     }
 
-    println("Updating canvas")
-    scene.update();
-    println("Updated canvas")
+    println(measureTime)
+
+    val measureTime2 = measureTime {
+        println("Updating canvas")
+        scene.update();
+        println("Updated canvas")
+    }
+
+    println(measureTime2)
 
 }
 

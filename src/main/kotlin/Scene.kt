@@ -38,6 +38,11 @@ class Scene(
                         else -> Vector(0.0, 0.0, 0.0)
                     }
 
+                    val shadow = closestIntersection(p, l, 0.001, if (light.type == LightType.POINT) 1 else Int.MAX_VALUE)
+                    if (shadow.obj != null) {
+                        continue
+                    }
+
                     light.intensity * normal.dotProduct(l) / (normal.length() * l.length())
                 }
             }
@@ -46,31 +51,39 @@ class Scene(
         return i
     }
 
-    fun traceRay(origin: Vector, direction: Vector, minT: Int, maxT: Int): Color {
-        var closestT = Double.MAX_VALUE
+    fun closestIntersection(origin: Vector, direction: Vector, minT: Double, maxT: Int): ObjectIntersection {
+        var intersection = Double.MAX_VALUE
         var closestObject: Sphere? = null
 
         for (obj in objects) {
             val ts = intersectObj(origin, direction, obj)
-            if (ts.front < closestT && minT < ts.front && ts.front < maxT) {
-                closestT = ts.front;
-                closestObject = obj;
+            if (ts.front < intersection && minT < ts.front && ts.front < maxT) {
+                intersection = ts.front
+                closestObject = obj
             }
-            if (ts.back < closestT && minT < ts.back && ts.back < maxT) {
-                closestT = ts.back;
-                closestObject = obj;
+            if (ts.back < intersection && minT < ts.back && ts.back < maxT) {
+                intersection = ts.back
+                closestObject = obj
             }
         }
+
+        return ObjectIntersection(closestObject, intersection)
+    }
+
+    fun traceRay(origin: Vector, direction: Vector, minT: Double, maxT: Int): Color {
+        val objectIntersection = closestIntersection(origin, direction, minT, maxT)
+        val closestObject = objectIntersection.obj
+        val intersection = objectIntersection.intersection
 
         if (closestObject == null) {
             return backgroundColor
         }
 
-        val intersection = origin.add(direction.multiply(closestT))
-        var normal = intersection.subtract(closestObject.vector)
+        val offsetIntersection = origin.add(direction.multiply(intersection))
+        var normal = offsetIntersection.subtract(closestObject.vector)
         normal = normal.multiply(1.0/normal.length())
 
-        val colorVector = closestObject.colorVector().multiply(computeLighting(intersection, normal))
+        val colorVector = closestObject.colorVector().multiply(computeLighting(offsetIntersection, normal))
         return Color(colorVector.x.toInt(), colorVector.y.toInt(), colorVector.z.toInt())
     }
 
@@ -96,3 +109,5 @@ class Scene(
     }
 
 }
+
+class ObjectIntersection(val obj: Sphere?, val intersection: Double)
