@@ -12,12 +12,18 @@
         Kotlin <span id="kotlin-version"></span>,
         node <script>document.write(process.versions.node)</script>,
         Chrome <script>document.write(process.versions.chrome)</script>,
-        and Electron <script>document.write(process.versions.electron)</script>.
+        and Electron <script>document.write(process.versions.electron)</script>
+        with <span id="cpu"></span> CPU cores.
     </p>
 
     <div style="width: 600px; height: 600px; margin: 0px auto;">
-        <canvas id="graphics" width="600" height="600" style="border: 1px grey solid"></canvas>
+        <canvas id="graphics-canvas" width="600" height="600" style="border: 1px grey solid"></canvas>
     </div>
+    <script>
+        const os = require('os')
+        document.getElementById("cpu").innerHTML = os.cpus().length;
+        alert(require("graphics").greeting())
+    </script>
     <script type="text/javascript" src="build/distributions/graphics.js"></script>
 </body>
 </html>

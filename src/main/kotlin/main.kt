@@ -9,15 +9,21 @@ import kotlin.time.measureTime
 fun main() {
     init()
     println("Initialized")
-    val scene = Scene(1, 1, Vector(0.0, 0.0, 0.0), Color(255, 255, 255), Canvas(document.getElementById("graphics") as HTMLCanvasElement))
+    val cameraRotation = Matrix(listOf(
+        Vector(0.7071, 0.0, -0.7071),
+        Vector(0.0, 1.0, 0.0),
+        Vector(0.7071, 0.0, 0.7071)
+    ))
+
+    val scene = Scene(1, 1, Vector(3.0, 0.0, 1.0), cameraRotation, Color(0, 0, 0), Canvas(document.getElementById("graphics-canvas") as HTMLCanvasElement))
     println("Scene created")
 
     scene.addObjects(
         listOf(
-            Sphere(Vector(0.0, -1.0, 3.0), 1, Color(255, 0, 0)),
-            Sphere(Vector(2.0, 0.0, 4.0), 1, Color(0, 0, 255)),
-            Sphere(Vector(-2.0, 0.0, 4.0), 1, Color(0, 255, 0)),
-            Sphere(Vector(0.0, -5001.0, 0.0), 5000, Color(255, 255, 0))
+            Sphere(Vector(0.0, -1.0, 3.0), 1, Color(255, 0, 0), 500.0, 0.2),
+            Sphere(Vector(2.0, 0.0, 4.0), 1, Color(0, 0, 255), 500.0, 0.3),
+            Sphere(Vector(-2.0, 0.0, 4.0), 1, Color(0, 255, 0), 10.0, 0.4),
+            Sphere(Vector(0.0, -5001.0, 0.0), 5000, Color(255, 255, 0), 1000.0, 0.5)
         )
     )
 
@@ -34,8 +40,8 @@ fun main() {
     val measureTime = measureTime {
         for (x in -scene.canvas.getWidth() / 2..scene.canvas.getWidth() / 2) {
             for (y in -scene.canvas.getHeight() / 2..scene.canvas.getHeight() / 2) {
-                val direction = scene.toViewport(Vector(x.toDouble(), y.toDouble()))
-                val color = scene.traceRay(scene.cameraPosition, direction, 1.0, Int.MAX_VALUE);
+                val direction = scene.cameraRotation.multiply(scene.toViewport(Vector(x.toDouble(), y.toDouble())))
+                val color = Color(scene.traceRay(scene.cameraPosition, direction, 1.0, Int.MAX_VALUE));
                 scene.canvas.putPixel(x.toDouble(), y.toDouble(), color);
             }
         }
@@ -50,7 +56,12 @@ fun main() {
     }
 
     println(measureTime2)
+}
 
+class Matrix(private val vectors: List<Vector>) {
+    fun multiply(vector: Vector): Vector {
+        return Vector(vector.dotProduct(vectors[0]), vector.dotProduct(vectors[1]), vector.dotProduct(vectors[2]))
+    }
 }
 
 fun init() {
